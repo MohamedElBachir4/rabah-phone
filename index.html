@@ -85,8 +85,12 @@
 
     /* Hero Section */
     .hero {
-      min-height: 100vh; display: flex; align-items: flex-start; padding-top: 220px; position: relative; overflow: hidden;
-      background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.7) 70%, rgba(248, 250, 252, 1) 100%), url('https://images.unsplash.com/photo-1601524909162-ae8725290b05?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;
+      display: flex; align-items: flex-start; padding-top: 220px; position: relative; overflow: hidden;
+      background-color: var(--bg);
+      background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.7) 70%, #F8FAFC 100%), url('https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=1000&q=100');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
     .hero-container { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 2rem; display: flex; flex-direction: column; text-align: center; align-items: center; justify-content: center; gap: 2rem; }
     .hero-tag {
@@ -476,23 +480,6 @@
     </div>
   </footer>
 
-  <!-- Cart Modal -->
-  <div class="modal-overlay" id="cartModal" onclick="if(event.target===this) closeCart()">
-    <div class="modal-box">
-      <div class="cart-header">
-        <h3 class="cart-title"><i class="fa-solid fa-bag-shopping" style="color:var(--accent); margin-left:10px;"></i>سلة مشترياتك</h3>
-        <button class="close-btn" onclick="closeCart()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div id="cartItems" style="max-height: 50vh; overflow-y: auto; padding-right:5px; margin-bottom:1rem;">
-        <!-- Cart Items Go Here -->
-      </div>
-      <div class="cart-total-wrap">
-        <span>المجموع الإجمالي:</span>
-        <span class="c-total-price" id="cartTotal">0 دج</span>
-      </div>
-      <button class="btn btn-main" style="width:100%; border-radius:18px; font-size:1.1rem; padding:1.2rem;" onclick="checkout()"><i class="fa-brands fa-whatsapp"></i> إتمام الطلب عبر واتساب</button>
-    </div>
-  </div>
 
   <!-- Toast Notification -->
   <div class="toast" id="toast">
@@ -524,71 +511,12 @@
     }, { threshold: 0.1 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    // Cart Logic
-    let cart = [];
-    
+    // Direct Order Logic
     function addToCart(name, price) {
-      const existing = cart.find(item => item.name === name);
-      if (existing) { existing.qty += 1; }
-      else { cart.push({name, price, qty: 1}); }
-      
-      updateCartUI();
-      showToast('تمت الإضافة: ' + name);
-    }
-    
-    function removeFromCart(name) {
-      cart = cart.filter(item => item.name !== name);
-      updateCartUI();
-    }
-
-    function updateCartUI() {
-      const badge = document.getElementById('cartBadge');
-      const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-      badge.textContent = totalItems;
-      
-      const itemsContainer = document.getElementById('cartItems');
-      if (cart.length === 0) {
-        itemsContainer.innerHTML = '<div style="text-align:center; padding:3rem 0; color:var(--text-muted);"><i class="fa-solid fa-cart-arrow-down" style="font-size:3rem; margin-bottom:1rem; opacity:0.3;"></i><br>السلة فارغة حالياً</div>';
-        document.getElementById('cartTotal').textContent = '0 دج';
-        return;
-      }
-
-      let total = 0;
-      itemsContainer.innerHTML = cart.map(item => {
-        total += item.price * item.qty;
-        return `
-          <div class="cart-item">
-            <div>
-              <div class="c-name en">${item.name}</div>
-              <div class="c-qty">${item.price.toLocaleString()} دج × ${item.qty}</div>
-            </div>
-            <button class="c-remove" onclick="removeFromCart('${item.name}')"><i class="fa-solid fa-trash"></i></button>
-          </div>
-        `;
-      }).join('');
-      
-      document.getElementById('cartTotal').textContent = total.toLocaleString() + ' دج';
-    }
-
-    function openCart() {
-      updateCartUI();
-      document.getElementById('cartModal').classList.add('active');
-    }
-    
-    function closeCart() {
-      document.getElementById('cartModal').classList.remove('active');
-    }
-
-    function checkout() {
-      if (cart.length === 0) return;
-      let msg = 'مرحباً، أريد طلب المنتجات التالية:\n\n';
-      cart.forEach(i => { msg += `- ${i.name} (الكمية: ${i.qty})\n`; });
-      const total = document.getElementById('cartTotal').textContent;
-      msg += `\nالمجموع الإجمالي: ${total}`;
+      const msg = `مرحباً، أود الاستفسار وطلب المنتج التالي:\n- ${name} (${price.toLocaleString()} دج)\nهل يتوفر لديكم حالياً؟`;
       const encodedUrl = 'https://wa.me/213550123456?text=' + encodeURIComponent(msg);
       window.open(encodedUrl, '_blank');
     }
-
     let toastTimer;
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -633,8 +561,6 @@
       if (menu) menu.classList.toggle('open');
     }
 
-    // Initialize Empty cart state
-    updateCartUI();
   </script>
 </body>
 </html>
